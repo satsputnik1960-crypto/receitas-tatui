@@ -34,6 +34,11 @@ st.set_page_config(page_title="Receitas Tatuí", page_icon="📊", layout="wide"
 
 
 # ======================================================================= utilidades
+def md(txt: str) -> str:
+    """Protege o '$' para o Streamlit não interpretar 'R$ ... R$' como fórmula matemática (LaTeX)."""
+    return txt.replace("\\$", "$").replace("$", "\\$")
+
+
 def _br(txt: str) -> str:
     return txt.replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -160,7 +165,7 @@ st.sidebar.markdown("**1. Como mostrar os valores**")
 unidade = st.sidebar.radio(
     "Valores", ["Corrigidos pela inflação", "Valores da época (sem correção)"], label_visibility="collapsed",
     help="Corrigir pela inflação (IPCA) permite comparar anos diferentes de forma justa: "
-         "R$ 100 em 2024 compravam mais coisas do que R$ 100 hoje.")
+         "R\\$ 100 em 2024 compravam mais coisas do que R\\$ 100 hoje.")
 corrigido = unidade.startswith("Corrigidos")
 
 st.sidebar.markdown("**2. Como estimar os meses que faltam**")
@@ -276,7 +281,7 @@ governos Federal e Estadual) e compara com os anos anteriores.
 - **Orçado x Arrecadado:** compara o que estava previsto no orçamento (aprovado pela Câmara) com o que realmente entrou.
 - **Glossário:** explica cada receita e cada termo usado.
 
-**Por que corrigir pela inflação?** Com a inflação, R$ 100 hoje compram menos do que há dois anos. Para saber se
+**Por que corrigir pela inflação?** Com a inflação, R\\$ 100 hoje compram menos do que há dois anos. Para saber se
 a arrecadação cresceu de verdade, os valores antigos são atualizados pelo IPCA (índice oficial de inflação, do IBGE).
 Você pode desligar essa correção na barra lateral (à esquerda).
 
@@ -292,11 +297,11 @@ with aba1:
     if tem_ant:
         vn = var(ytd_nom.get(ano_atual, 0), ytd_nom.get(ano_atual - 1, 0))
         vr = var(ytd_real.get(ano_atual, 0), ytd_real.get(ano_atual - 1, 0))
-        st.info(
+        st.info(md(
             f"De **{periodo_txt} de {ano_atual}**, a Prefeitura arrecadou **{brl(ytd_nom.get(ano_atual, 0))}**. "
             f"Isso é **{pct(abs(vn), False)} {mais_menos(vn)}** do que no mesmo período de {ano_atual - 1} "
             f"({brl(ytd_nom.get(ano_atual - 1, 0))}). "
-            f"Descontada a inflação, a arrecadação {'cresceu' if vr >= 0 else 'caiu'} **{pct(abs(vr), False)}** de fato.",
+            f"Descontada a inflação, a arrecadação {'cresceu' if vr >= 0 else 'caiu'} **{pct(abs(vr), False)}** de fato."),
             icon="💡")
 
     k = st.columns(3)
@@ -402,7 +407,7 @@ with aba2:
             msg += f", **{pct(abs(v_ant), False)} {mais_menos(v_ant)}** que em {ano_atual - 1} ({brl(real_ant)})"
         msg += (f". Para cada mês que falta, {frase_met}, com valores corrigidos pela inflação. "
                 "Emendas, convênios e empréstimos **não** são estimados (entra só o que já chegou).")
-        st.info(msg, icon="💡")
+        st.info(md(msg), icon="💡")
 
         k = st.columns(3)
         k[0].metric(f"Já arrecadado ({MESES[0]}–{MESES[mes_fechado - 1] if mes_fechado else '-'})", brl(realiz_fech))
@@ -517,18 +522,18 @@ with aba3:
 
     if atual:
         dif = comp["Estimativa"].sum() - p_tot
-        st.info(
+        st.info(md(
             f"O orçamento de {ano_pr} previa arrecadar **{brl(p_tot)}**. Até {ultima_data.strftime('%d/%m/%Y')} "
             f"entraram **{brl(r_tot)}** ({pct(r_tot / p_tot, False) if p_tot else '-'} do previsto). "
             f"Pela estimativa, o ano deve fechar em **{brl(comp['Estimativa'].sum())}**, ou seja, "
-            f"**{brl(abs(dif))} {'acima' if dif >= 0 else 'abaixo'}** do previsto no orçamento.", icon="💡")
+            f"**{brl(abs(dif))} {'acima' if dif >= 0 else 'abaixo'}** do previsto no orçamento."), icon="💡")
         base_cmp = "Estimativa"
     else:
         dif = r_tot - p_tot
-        st.info(
+        st.info(md(
             f"O orçamento de {ano_pr} previa arrecadar **{brl(p_tot)}** e entraram **{brl(r_tot)}** "
             f"({pct(r_tot / p_tot, False) if p_tot else '-'} do previsto): "
-            f"**{brl(abs(dif))} {'acima' if dif >= 0 else 'abaixo'}** do orçamento.", icon="💡")
+            f"**{brl(abs(dif))} {'acima' if dif >= 0 else 'abaixo'}** do orçamento."), icon="💡")
         base_cmp = "Arrecadado"
 
     comp["Diferença"] = comp[base_cmp] - comp["Previsto"]
@@ -539,11 +544,11 @@ with aba3:
     with c1:
         st.markdown(f"**▼ Receitas que mais {'devem ficar' if atual else 'ficaram'} abaixo do previsto**")
         for g, r in abaixo[abaixo["Diferença"] < 0].iterrows():
-            st.markdown(f"- **{g}**: {brl(abs(r['Diferença']))} a menos")
+            st.markdown(md(f"- **{g}**: {brl(abs(r['Diferença']))} a menos"))
     with c2:
         st.markdown(f"**▲ Receitas que mais {'devem ficar' if atual else 'ficaram'} acima do previsto**")
         for g, r in acima[acima["Diferença"] > 0].iterrows():
-            st.markdown(f"- **{g}**: {brl(r['Diferença'])} a mais")
+            st.markdown(md(f"- **{g}**: {brl(r['Diferença'])} a mais"))
 
     # --- barras por grupo
     cmp_plot = comp.sort_values("Previsto", ascending=True)
@@ -601,7 +606,7 @@ with aba3:
 with aba4:
     st.markdown("#### O que significa cada termo")
     for termo, txt in glossario.TERMOS.items():
-        st.markdown(f"**{termo}** — {txt}")
+        st.markdown(md(f"**{termo}** — {txt}"))
     st.markdown("#### O que é cada receita")
     for origem in glossario.ORIGENS:
         grupos_o = [g for g in todos_grupos if glossario.origem(g) == origem]
@@ -609,7 +614,7 @@ with aba4:
             continue
         with st.expander(origem, expanded=False):
             for g in grupos_o:
-                st.markdown(f"**{g}** — {glossario.explicacao(g)}")
+                st.markdown(md(f"**{g}** — {glossario.explicacao(g)}"))
 
 # ======================================================================= ABA 5
 with aba5:
