@@ -1,0 +1,51 @@
+prefixo;contem;grupo;recorrente;observacao
+9100;;(-) Dedução para o FUNDEB;S;Deduções do FPM/ICMS/IPVA/ITR/IPI p/ formação do FUNDEB
+1321;;Rendimentos de Aplicações Financeiras;S;Agrupa a numeração antiga (1321.01.0) e a nova (1321.01.1) inclusive rendimentos de emendas
+2119;;Operações de Crédito;N;Financiamentos (Desenvolve SP etc.)
+1724.51.0.1.01;;Transf. Estado - Educação (Merenda/Transporte);S;Convênio recorrente - merenda
+1724.51.0.1.02;;Transf. Estado - Educação (Merenda/Transporte);S;Convênio recorrente - transporte escolar
+1729.99.0.1.05;;Outras Receitas Não Recorrentes;N;Convênio FEHIDRO
+1729.99;;Transf. Estado - Assistência Social;S;Blocos de proteção social (nome contém CONV. mas é recorrente)
+;EMENDA|CONVENIO|CONV.|CONTRATO REPASSE|CONTRATO FECOP|CONTRATO FEHIDRO|PROPOSTA|PREMIO EXCELENCIA;Outras Receitas Não Recorrentes;N;Emendas parlamentares e convênios
+1723.50.0.1.06;;Outras Receitas Não Recorrentes;N;Santa Casa Sustentável (pontual)
+1723.50.0.1.07;;Outras Receitas Não Recorrentes;N;Resolução SS 20 arboviroses (pontual)
+1723.50.0.1.09;;Outras Receitas Não Recorrentes;N;Cirurgia eletiva estadual (pontual)
+1723.50.0.1.11;;Outras Receitas Não Recorrentes;N;Enfrentamento arboviroses (pontual)
+1713.50.5.1.01.03;;Outras Receitas Não Recorrentes;N;Transformação digital SUS (pontual)
+1713.50.5.1.01.04;;Outras Receitas Não Recorrentes;N;Portaria pontual
+1716.50.0.1.02.06;;Outras Receitas Não Recorrentes;N;Fortalecimento CadÚnico (pontual)
+1719.99;;Outras Receitas Não Recorrentes;N;Lei Aldir Blanc
+1361;;Outras Receitas Não Recorrentes;N;Cessão da folha de pagamento
+1339;;Outras Receitas Não Recorrentes;N;FMSAI
+1741;;Outras Receitas Não Recorrentes;N;Doações
+1715;;Outras Receitas Não Recorrentes;N;FUNDEB - matrículas ETI (pontual)
+2;;Outras Receitas Não Recorrentes;N;Demais receitas de capital (transferências de capital, alienações)
+1112.50;;IPTU;S;Principal + multas/juros + dívida ativa
+1112.53;;ITBI;S;
+1113;;IRRF;S;
+1114.51;;ISSQN;S;
+1121;;Taxas de Fiscalização;S;
+1122;;Taxas de Serviços (Coleta de Lixo);S;
+1241;;COSIP - Iluminação Pública;S;
+13;;Receita Patrimonial;S;
+16;;Receita de Serviços;S;
+1711.51;;FPM;S;Cota mensal + cotas extras (jul/set/dez)
+1711.52;;ITR;S;
+1712;;Compensações Financeiras (CFEM/FEP/Royalties);S;
+1722.52;;Compensações Financeiras (CFEM/FEP/Royalties);S;
+1713;;Transf. União - SUS;S;
+1714;;Transf. União - FNDE/Educação;S;Salário-educação, PNAE e PNATE (desdobrados em 2026)
+1716;;Transf. União - Assistência Social;S;
+1717;;Outras Transferências da União;S;
+1719;;Outras Transferências da União;S;
+1721.50;;ICMS;S;
+1721.51;;IPVA;S;
+1721.52;;IPI-Exportação;S;
+1721.53;;CIDE;S;
+1723;;Transf. Estado - SUS;S;
+1724;;Transf. Estado - Educação (Merenda/Transporte);S;
+1729;;Transf. Estado - Assistência Social;S;
+1732;;Transf. Estado - Assistência Social;S;
+1751;;FUNDEB;S;
+19;;Multas e Outras Receitas Correntes;S;
+1;;Outras Receitas Correntes;S;
