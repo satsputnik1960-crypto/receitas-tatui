@@ -101,7 +101,7 @@ def mostrar(fig: go.Figure, titulo: str, explicacao: str = "", altura: int = 400
     fig.update_layout(**{f"{eixo_valor}axis": dict(gridcolor=GRID, zeroline=True, zerolinecolor=CINZA,
                                                    tickformat=",.0f", title_text="R$ milhões")})
     fig.update_layout(**{f"{eixo_cat}axis": dict(showgrid=False)})
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def tabela(df: pd.DataFrame, moeda: list[str] = (), variacao: list[str] = (), perc: list[str] = (),
@@ -116,7 +116,7 @@ def tabela(df: pd.DataFrame, moeda: list[str] = (), variacao: list[str] = (), pe
             return ""
     if variacao:
         sty = sty.map(cor, subset=list(variacao))
-    st.dataframe(sty, use_container_width=True, hide_index=not indice,
+    st.dataframe(sty, width="stretch", hide_index=not indice,
                  height=altura or min(900, 38 + 35 * len(df)))
 
 
@@ -187,7 +187,7 @@ opcoes = sorted(df.loc[df["recorrente"], "grupo"].unique()) if so_rec else todos
 grupos_sel = st.sidebar.multiselect("Receitas", opcoes, default=opcoes, label_visibility="collapsed")
 
 with st.sidebar.expander("🔧 Configurações avançadas"):
-    if st.button("🔄 Atualizar inflação (IPCA) pela internet", use_container_width=True):
+    if st.button("🔄 Atualizar inflação (IPCA) pela internet", width="stretch"):
         try:
             _, fonte_api = obter_ipca(anos[0] - 1, forcar=True)
             st.success(f"IPCA atualizado ({fonte_api}).")
@@ -223,7 +223,7 @@ with st.sidebar.expander("🔧 Configurações avançadas"):
         help="No mês incompleto já entrou parte do dinheiro. Por padrão, usa-se o maior valor entre o que já "
              "entrou e o que foi estimado para o mês.")
     regra_inc = "maior" if regra_inc.startswith("O maior") else "projecao"
-    if st.button("♻️ Recarregar arquivos de dados", use_container_width=True):
+    if st.button("♻️ Recarregar arquivos de dados", width="stretch"):
         st.cache_data.clear()
         st.rerun()
 
@@ -494,7 +494,7 @@ with aba2:
         tg["Estimada?"] = tg["recorrente"].map({True: "Sim", False: "Não (não se repete)"})
         tg = tg.drop(columns="recorrente").rename(columns={"grupo": "Receita"}) \
             .sort_values("Estimativa do ano", ascending=False)
-        tot = tg.select_dtypes("number").sum()
+        tot = tg.select_dtypes("number").sum().astype(object)
         tot["Receita"], tot["Estimada?"] = "TOTAL", ""
         tot[f"Comparado a {ano_atual - 1}"] = var(tot["Estimativa do ano"], tot[f"Total de {ano_atual - 1}"])
         tg = pd.concat([tg, tot.to_frame().T], ignore_index=True)
@@ -625,7 +625,7 @@ with aba5:
                                        anulacoes=("anulacao", "sum"))
     info["meses completos"] = [f"Jan–{MESES[mes_fechado - 1]}" if a == ano_atual and mes_fechado else
                                ("nenhum" if a == ano_atual else "Jan–Dez") for a in info.index]
-    st.dataframe(info, use_container_width=True)
+    st.dataframe(info, width="stretch")
     st.markdown(
         "**Tratamentos aplicados**\n"
         "- **Anulações/estornos:** usa-se o valor líquido; como a análise é por grupo, reclassificações dentro "
@@ -672,4 +672,4 @@ with aba5:
     ip["fator de correção"] = ip["periodo"].map(ipca.fatores_correcao(idx, ip["periodo"], base_ef))
     st.dataframe(ip[["mês", "IPCA do mês", "fator de correção"]].style.format(
         {"IPCA do mês": lambda v: _br(f"{v * 100:.2f}") + "%", "fator de correção": lambda v: _br(f"{v:.6f}")}),
-        hide_index=True, use_container_width=True, height=300)
+        hide_index=True, width="stretch", height=300)
