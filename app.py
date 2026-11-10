@@ -21,6 +21,7 @@ RAIZ = Path(__file__).parent
 PASTA_DADOS = RAIZ / "Dados"
 ARQ_REGRAS = RAIZ / "config" / "regras_receitas.csv"
 ARQ_IPCA = RAIZ / "cache" / "ipca.csv"
+ARQ_OBS = RAIZ / "config" / "observacoes.csv"
 
 SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
 CINZA = "#898781"
@@ -138,6 +139,27 @@ def carregar(assinatura_dados: tuple, assinatura_regras: float) -> pd.DataFrame:
 @st.cache_data(show_spinner=False)
 def tabela_codigos(assinatura_dados: tuple, assinatura_regras: float, _df: pd.DataFrame) -> pd.DataFrame:
     return classificacao.tabela_codigos(_df)
+
+
+def ler_observacoes() -> pd.DataFrame:
+    """Receitas previstas que não aparecem nos arquivos (ex.: impedidas por decisão judicial)."""
+    try:
+        o = pd.read_csv(ARQ_OBS, sep=";", encoding="utf-8")
+        o["valor_previsto"] = pd.to_numeric(o["valor_previsto"], errors="coerce").fillna(0.0)
+        return o
+    except Exception:  # noqa: BLE001 - arquivo opcional
+        return pd.DataFrame(columns=["ano", "receita", "valor_previsto", "observacao"])
+
+
+def avisos_observacoes(ano: int) -> pd.DataFrame:
+    obs = ler_observacoes()
+    obs = obs[obs["ano"] == ano]
+    for _, o in obs.iterrows():
+        st.warning(md(
+            f"**{o['receita']}:** o orçamento de {ano} previa cerca de **{brl(o['valor_previsto'])}** "
+            f"com esta receita. {o['observacao']} Como nada foi arrecadado, ela não aparece nos arquivos "
+            f"e **não está somada** aos valores previstos deste painel."), icon="⚖️")
+    return obs
 
 
 def obter_ipca(ano_ini: int, forcar: bool = False):
@@ -408,6 +430,10 @@ with aba2:
         msg += (f". Para cada mês que falta, {frase_met}, com valores corrigidos pela inflação. "
                 "Emendas, convênios e empréstimos **não** são estimados (entra só o que já chegou).")
         st.info(md(msg), icon="💡")
+        for _, o in ler_observacoes().query("ano == @ano_atual").iterrows():
+            st.caption(md(f"⚖️ {o['receita']} ({brl(o['valor_previsto'])} previstos no orçamento) não entra na "
+                          f"estimativa: {o['observacao'][0].lower() + o['observacao'][1:]} "
+                          "Veja a aba 'Orçado x Arrecadado'."))
 
         k = st.columns(3)
         k[0].metric(f"Já arrecadado ({MESES[0]}–{MESES[mes_fechado - 1] if mes_fechado else '-'})", brl(realiz_fech))
@@ -535,6 +561,18 @@ with aba3:
             f"({pct(r_tot / p_tot, False) if p_tot else '-'} do previsto): "
             f"**{brl(abs(dif))} {'acima' if dif >= 0 else 'abaixo'}** do orçamento."), icon="💡")
         base_cmp = "Arrecadado"
+
+    obs_ano = avisos_observacoes(ano_pr)
+    if len(obs_ano):
+        extra = obs_ano["valor_previsto"].sum()
+        final = comp[base_cmp].sum()
+        dif_total = final - (p_tot + extra)
+        nomes = ", ".join(obs_ano["receita"])
+        st.caption(md(
+            f"Somando {nomes} ao previsto, o orçamento original de {ano_pr} seria de **{brl(p_tot + extra)}**, e o "
+            f"{'estimado' if atual else 'arrecadado'} ficaria **{brl(abs(dif_total))} "
+            f"{'acima' if dif_total >= 0 else 'abaixo'}** dele — sendo **{brl(extra)}** referentes a "
+            f"receita que a Prefeitura está impedida de arrecadar."))
 
     comp["Diferença"] = comp[base_cmp] - comp["Previsto"]
     sig = comp[comp["Previsto"].abs() > 0]
